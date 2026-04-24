@@ -3,7 +3,7 @@ package br.com.dio.persistence.dao;
 import br.com.dio.dto.CardDetailsDTO;
 import br.com.dio.persistence.entity.CardEntity;
 import com.mysql.cj.jdbc.StatementImpl;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,10 +12,10 @@ import java.util.Optional;
 import static br.com.dio.persistence.converter.OffsetDateTimeConverter.toOffsetDateTime;
 import static java.util.Objects.nonNull;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CardDAO {
 
-    private Connection connection;
+    private final Connection connection;
 
     public CardEntity insert(final CardEntity entity) throws SQLException {
         var sql = "INSERT INTO CARDS (title, description, board_column_id) values (?, ?, ?);";
