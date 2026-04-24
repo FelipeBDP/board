@@ -16,7 +16,6 @@ import java.util.List;
 import static br.com.dio.persistence.entity.BoardColumnKindEnum.CANCEL;
 import static br.com.dio.persistence.entity.BoardColumnKindEnum.FINAL;
 
-
 @AllArgsConstructor
 public class CardService {
 
@@ -37,12 +36,11 @@ public class CardService {
     public void moveToNextColumn(final Long cardId, final List<BoardColumnInfoDTO> boardColumnsInfo) throws SQLException{
         try{
             var dao = new CardDAO(connection);
-            var optional = dao.findById(cardId);
-            var dto = optional.orElseThrow(
+            var dto = dao.findById(cardId).orElseThrow(
                     () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(cardId))
             );
             if (dto.blocked()){
-                var message = "O card %s está bloqueado, é necesário desbloquea-lo para mover".formatted(cardId);
+                var message = "O card %s está bloqueado, é necessário desbloqueá-lo para mover".formatted(cardId);
                 throw new CardBlockedException(message);
             }
             var currentColumn = boardColumnsInfo.stream()
@@ -67,12 +65,11 @@ public class CardService {
                        final List<BoardColumnInfoDTO> boardColumnsInfo) throws SQLException{
         try{
             var dao = new CardDAO(connection);
-            var optional = dao.findById(cardId);
-            var dto = optional.orElseThrow(
+            var dto = dao.findById(cardId).orElseThrow(
                     () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(cardId))
             );
             if (dto.blocked()){
-                var message = "O card %s está bloqueado, é necesário desbloquea-lo para mover".formatted(cardId);
+                var message = "O card %s está bloqueado, é necessário desbloqueá-lo para mover".formatted(cardId);
                 throw new CardBlockedException(message);
             }
             var currentColumn = boardColumnsInfo.stream()
@@ -82,9 +79,9 @@ public class CardService {
             if (currentColumn.kind().equals(FINAL)){
                 throw new CardFinishedException("O card já foi finalizado");
             }
-            boardColumnsInfo.stream()
-                    .filter(bc -> bc.order() == currentColumn.order() + 1)
-                    .findFirst().orElseThrow(() -> new IllegalStateException("O card está cancelado"));
+            if (currentColumn.kind().equals(CANCEL)){
+                throw new IllegalStateException("O card já está cancelado");
+            }
             dao.moveToColumn(cancelColumnId, cardId);
             connection.commit();
         }catch (SQLException ex){
@@ -96,8 +93,7 @@ public class CardService {
     public void block(final Long id, final String reason, final List<BoardColumnInfoDTO> boardColumnsInfo) throws SQLException {
         try{
             var dao = new CardDAO(connection);
-            var optional = dao.findById(id);
-            var dto = optional.orElseThrow(
+            var dto = dao.findById(id).orElseThrow(
                     () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(id))
             );
             if (dto.blocked()){
@@ -125,8 +121,7 @@ public class CardService {
     public void unblock(final Long id, final String reason) throws SQLException {
         try{
             var dao = new CardDAO(connection);
-            var optional = dao.findById(id);
-            var dto = optional.orElseThrow(
+            var dto = dao.findById(id).orElseThrow(
                     () -> new EntityNotFoundException("O card de id %s não foi encontrado".formatted(id))
             );
             if (!dto.blocked()){
