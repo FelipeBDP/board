@@ -2,16 +2,16 @@ package br.com.dio.persistence.dao;
 
 import br.com.dio.persistence.entity.BoardEntity;
 import com.mysql.cj.jdbc.StatementImpl;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BoardDAO {
 
-    private Connection connection;
+    private final Connection connection;
 
     public BoardEntity insert(final BoardEntity entity) throws SQLException {
         var sql = "INSERT INTO BOARDS (name) values (?);";
